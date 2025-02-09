@@ -20,6 +20,37 @@ namespace CakeCraftApi.Models
 
         [Required]
         public required Role Role { get; set; }
+
+        public string? Address { get; set; }
+
+        public string? Phone { get; set; }
+
+        [Required]
+        public bool IsVerified { get; set; } = false;
+
+        [Required]
+        public bool IsActive { get; set; } = true;
+
+        public string? Gender { get; set; }
+
+        public string? City { get; set; }
+
+        public string? State { get; set; }
+
+        public string? Country { get; set; }
+
+        public string? UserType { get; set; }
+
+        [Required]
+        public Guid UniqueId { get; set; } = Guid.NewGuid();
+
+        [Required]
+        public DateTime CreatedAt { get; set; }
+
+        [Required]
+        public DateTime UpdatedAt { get; set; }
+
+
     }
 
     // Enum for User Roles
