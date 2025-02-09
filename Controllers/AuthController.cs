@@ -18,10 +18,15 @@ namespace MyApp.Namespace
          private readonly IConfiguration _configuration;
         private readonly CakeCraftDbContext _context;
 
-        public AuthController(CakeCraftDbContext context, IConfiguration configuration)
+
+        private readonly EmailService _emailService;
+
+        public AuthController(CakeCraftDbContext context, IConfiguration configuration, EmailService emailService)
         {
             _context = context;
             _configuration = configuration;
+     
+            _emailService = emailService;
         }
 
 
@@ -124,5 +129,81 @@ public async Task<IActionResult> GetUserDetails()
 }
 
 
+//forget password 
+
+
+[HttpPost("forget_password")]
+
+public async Task<IActionResult> ForgetPassword(forgotModel forgotModel)
+{
+
+    if(forgotModel == null){
+        return BadRequest("Invalid or missing email");
+    }
+
+    var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == forgotModel.Email);
+
+  
+
+    if(existingUser == null){
+        return NotFound("User not found");
+    }
+
+
+
+       // Generate reset token (random string for simplicity)
+    string resetToken = Guid.NewGuid().ToString();
+
+    existingUser.ResetToken = resetToken;
+    existingUser.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+
+    await _context.SaveChangesAsync();
+
+
+    // Send email (implement EmailService to send the token)
+    string resetLink = $"https://localhost:7134/reset-password?token={Uri.EscapeDataString(resetToken)}&email={Uri.EscapeDataString(existingUser.Email)}";
+    await _emailService.SendEmailAsync(forgotModel.Email, "Password Reset", $"Click the link to reset your password: {resetLink}");
+
+
+    return Ok(new { message = "Password reset link has been sent to your email.", resetToken });
+   
+}
+
+
+
+//reset password
+
+[HttpPost("reset_password")]
+
+public async Task<IActionResult> ResetPassword([FromBody] resetPasswordModel resetPasswordModel)
+{
+    if(resetPasswordModel == null){
+        return BadRequest("Invalid or missing reset data");
+    }
+
+    var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == resetPasswordModel.Email);
+
+    if(existingUser == null){
+        return NotFound("User not found");
+    }
+
+    if(existingUser.ResetToken != resetPasswordModel.Token){
+        return BadRequest("Invalid reset token");
+    }
+
+    if(existingUser.ResetTokenExpiry < DateTime.UtcNow){
+        return BadRequest("Reset token has expired");
+    }
+
+    var passwordHasher = new PasswordHasher<User>();
+    existingUser.PasswordHash = passwordHasher.HashPassword(existingUser, resetPasswordModel.Password);
+
+    existingUser.ResetToken = null;
+    existingUser.ResetTokenExpiry = null;
+
+    await _context.SaveChangesAsync();
+
+    return Ok("Password reset successful");
+}
     }
 }
