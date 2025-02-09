@@ -44,12 +44,6 @@ namespace CakeCraftApi.Models
         [Required]
         public Guid UniqueId { get; set; } = Guid.NewGuid();
 
-        [Required]
-        public DateTime CreatedAt { get; set; }
-
-        [Required]
-        public DateTime UpdatedAt { get; set; }
-
 
     }
 
