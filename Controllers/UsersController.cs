@@ -33,6 +33,11 @@ namespace CakeCraftApi.Namespace
 
         var users = await _context.Set<User>().ToListAsync();
 
+        foreach (var user in users)
+        {
+            user.PasswordHash = null;
+        }
+
         return Ok(users);
 
 
@@ -72,6 +77,49 @@ namespace CakeCraftApi.Namespace
         var users = await _context.Users.Where(u => (int)u.Role == role).ToListAsync();
         
         return Ok(users);
+
+    }
+
+    //dete user by id
+
+    [HttpDelete("delete{id}")]
+
+    public async Task<IActionResult> DeleteUserById(int id)
+    {
+      
+        var user = await _context.Users.FindAsync(id);
+
+        if(user == null){
+            return BadRequest("User not found");
+        }
+
+        //remove the user
+
+        _context.Users.Remove(user);
+        
+        //save the changes
+
+        await _context.SaveChangesAsync();
+
+        //return success
+
+        return Ok("User deleted succesfully");
+    }
+
+    //get user by uniqueId
+
+    [HttpGet("unique/{uniqueId}")]
+
+    public async Task<IActionResult> GetUserByUniqueId(Guid uniqueId)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.UniqueId == uniqueId);
+
+        if(user == null){
+            return BadRequest("Usern not Found");
+        }
+        
+
+        return Ok(user);
 
     }
 

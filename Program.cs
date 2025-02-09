@@ -4,6 +4,9 @@ using CakeCraftApi.Models;
 using CakeCraftApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 // Load .env file
 Env.Load();
@@ -26,6 +29,22 @@ var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 // var connectionString = $"Server={dbServer};Database={dbDatabase};User={dbUser};Password={dbPassword};";
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+ var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+
+ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]))
+        };
+    });
 
 
 // builder.Services.AddDbContext<CakeCraftDbContext>(options =>
@@ -44,6 +63,8 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = APP_NAME, Version = APP_VERSION });
 });
 
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Enable Swagger in Development mode
@@ -56,7 +77,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+
+
+
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
