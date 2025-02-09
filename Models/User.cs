@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
+
 namespace CakeCraftApi.Models
 {
-    public class User
+    public class User 
     {
         [Key]
         public int Id { get; set; }
@@ -43,6 +44,10 @@ namespace CakeCraftApi.Models
 
         [Required]
         public Guid UniqueId { get; set; } = Guid.NewGuid();
+
+
+         public string? ResetToken { get; set; }
+         public DateTime? ResetTokenExpiry { get; set; }
 
 
     }

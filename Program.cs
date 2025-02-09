@@ -7,12 +7,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 
 // Load .env file
 Env.Load();
 
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 //read environment variable
 
@@ -53,6 +55,7 @@ builder.Services.AddDbContext<CakeCraftDbContext>(options =>
     options.UseMySql(connectionString,
     ServerVersion.AutoDetect(connectionString)));
 
+
 Console.WriteLine(apiEndpoint);
 
 // Add services to the container
@@ -64,6 +67,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddScoped<EmailService>();
 
 var app = builder.Build();
 
