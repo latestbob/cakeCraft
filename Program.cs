@@ -61,12 +61,58 @@ Console.WriteLine(apiEndpoint);
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+//add swagger
+
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = APP_NAME, Version = APP_VERSION });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "CakeCraft API", Version = "v1" });
+
+    // Add JWT Authentication to Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    // Policy for Admins
+   
+
+        // Policy for Admins using Role claim
+        options.AddPolicy("AdminOnly", policy =>
+            policy.RequireRole("Admin"));
+
+        // Policy for Vendors using Role claim
+        options.AddPolicy("VendorOnly", policy =>
+            policy.RequireRole("Vendor"));
+
+        // Policy for Customers using Role claim
+        options.AddPolicy("CustomerOnly", policy =>
+            policy.RequireRole("Customer"));
+
+   
+});
 builder.Services.AddScoped<EmailService>();
 
 var app = builder.Build();
