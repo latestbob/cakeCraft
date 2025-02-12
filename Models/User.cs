@@ -1,5 +1,7 @@
+using System;
 using System.ComponentModel.DataAnnotations;
-
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace CakeCraftApi.Models
 {
@@ -48,6 +50,11 @@ namespace CakeCraftApi.Models
 
          public string? ResetToken { get; set; }
          public DateTime? ResetTokenExpiry { get; set; }
+
+          // Navigation properties
+
+        [JsonIgnore] // Ignore this property during serialization
+         public ICollection<Store> Stores { get; set; } = new List<Store>();
 
 
     }

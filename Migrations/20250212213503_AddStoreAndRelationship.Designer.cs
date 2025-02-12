@@ -4,6 +4,7 @@ using CakeCraftApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CakeCraftApi.Migrations
 {
     [DbContext(typeof(CakeCraftDbContext))]
-    partial class CakeCraftDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250212213503_AddStoreAndRelationship")]
+    partial class AddStoreAndRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
